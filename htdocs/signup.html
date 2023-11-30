@@ -1,0 +1,54 @@
+<html>
+<head>
+    <title>
+        Autentificare
+    </title>
+    <script>
+        function addInputs(){
+            var div = document.getElementById('dynamicInputs');
+            var select = document.getElementById('select');
+            var categorie = select.value;
+            if(categorie === 'student'){
+                div.innerHTML = `<label>Grupa: </label><input type=number required><br>`;
+            }
+            else if(categorie === 'profesor'){
+                div.innerHTML = '';
+            }
+            else if(categorie === 'candidat'){
+                div.innerHTML = `<label>Nr. dosar candidat: </label><input type=number required><br>
+                                 <label>Domeniu: </label><select name='domeniu' required>
+                                    <option name='informatica' value='informatica'>Informatica</option>
+                                    <option name='matematica' value='matematica'>Matematica</option>
+                                    <option name='cti' value='cti'>Calculatoare si Tehnologia Informatiei</option>
+                                    </select>`;
+            }
+            else
+                div.innerHTML = 'Eroare!';
+        }
+    </script>
+</head>
+<body>
+    <main>
+    <h2>Autentificare</h2>
+    <form method="POST" action="/checkreg.php">
+        <label>Email institutional (in cazul in care sunteti candidat, mailul personal): </label><input type="text" name="email" required><br>
+        <label>Parola: </label><input type="password" name="parola" required><br>
+        <label>Confirmare parola: </label><input type="password" name="cparola" required><br>
+        <label>Nume: </label><input type="text" name="nume" required><br>
+        <label>Prenume: </label><input type="text" name="prenume" required><br>
+        <label>CNP: </label><input type="text" pattern="[0-9]{13}" name="cnp" required><br>
+        <label>Data nasterii: </label><input type="date" name="data_n" required><br>
+        <label>Telefon: </label><input type="tel" name="telefon" pattern="[0-9]{10}" required><br>
+        <label>Categorie de utilizator: </label><select name="categorie" id='select' onchange="addInputs()" required>
+            <option name="student" value="student">Student</option>
+            <option name="profesor" value="profesor" selected>Profesor</option>
+            <option name="candidat" value="candidat">Candidat la admitere</option>
+        </select><br>
+        <div id="dynamicInputs"></div>
+        <input type="submit">
+    </form>
+    
+    </main>
+</body>
+</html>
+
