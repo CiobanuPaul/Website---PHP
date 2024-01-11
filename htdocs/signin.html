@@ -2,19 +2,20 @@
 <head>
     <title>
         Logare
+        <script src="https://www.google.com/recaptcha/enterprise.js" async defer></script>
     </title>
 </head>
 <body>
     <main>
     <h2>Logare</h2>
     <form method="POST" action="/checklogin.php">
+        <div class="g-recaptcha" data-sitekey="6Ld2rDopAAAAAPVDv_CPRFw4NzaQ3qa-LQgL_Qt8" data-action="LOGIN"></div>
         <label>Email:</label><input type="text" name="email" required><br>
-        <label>Parola:</label><input type="password" name="password" required><br>
+        <label>Parola:</label><input type="password" name="parola" required><br>
         <input type="submit">
     </form>
     <p>Nu esti inregistrat?</p>
     <a href="signup.html">Inregistreaza-te</a><br>
-    <!-- <a href="signup_cand.html">Inregistreaza-te pe post de candidat la admitere</a> -->
     </main>
 </body>
 </html>

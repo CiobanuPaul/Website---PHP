@@ -3,29 +3,7 @@
     <title>
         Autentificare
     </title>
-    <script>
-        function addInputs(){
-            var div = document.getElementById('dynamicInputs');
-            var select = document.getElementById('select');
-            var categorie = select.value;
-            if(categorie === 'student'){
-                div.innerHTML = `<label>Grupa: </label><input type=number required><br>`;
-            }
-            else if(categorie === 'profesor'){
-                div.innerHTML = '';
-            }
-            else if(categorie === 'candidat'){
-                div.innerHTML = `<label>Nr. dosar candidat: </label><input type=number required><br>
-                                 <label>Domeniu: </label><select name='domeniu' required>
-                                    <option name='informatica' value='informatica'>Informatica</option>
-                                    <option name='matematica' value='matematica'>Matematica</option>
-                                    <option name='cti' value='cti'>Calculatoare si Tehnologia Informatiei</option>
-                                    </select>`;
-            }
-            else
-                div.innerHTML = 'Eroare!';
-        }
-    </script>
+    
 </head>
 <body>
     <main>
@@ -41,14 +19,68 @@
         <label>Telefon: </label><input type="tel" name="telefon" pattern="[0-9]{10}" required><br>
         <label>Categorie de utilizator: </label><select name="categorie" id='select' onchange="addInputs()" required>
             <option name="student" value="student">Student</option>
-            <option name="profesor" value="profesor" selected>Profesor</option>
+            <option name="profesor" value="profesor">Profesor</option>
             <option name="candidat" value="candidat">Candidat la admitere</option>
         </select><br>
         <div id="dynamicInputs"></div>
         <input type="submit">
     </form>
-    
+    <p>Ai deja cont?</p>
+    <a href="signin.html">Autentifica-te</a><br>
     </main>
+    <script>
+        function addInputs(){
+            var div = document.getElementById('dynamicInputs');
+            var select = document.getElementById('select');
+            var categorie = select.value;
+            if(categorie === 'student'){
+                div.innerHTML = `<label>Grupa: </label><input name='grupa' type=number required><br>`;
+            }
+            else if(categorie === 'profesor'){
+                    div.innerHTML = '<p>Selectati materiile predate</p>';
+                    const materii = [
+                    'Introducere in limbajul Python',
+                    'Algoritmi si structuri de date',
+                    'Baze de date',
+                    'Inteligenta artificiala',
+                    'Securitate informatica',
+                    'Analiza matematica',
+                    'Algebra liniara',
+                    'Geometrie diferentiala',
+                    'Teoria numerelor',
+                    'Topologie',
+                    'Introducere in arhitectura calculat',
+                    'Sisteme de operare',
+                    'Retele de calculatoare'
+                    ];
+                    materii.forEach(value => {
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.name = 'materii[]';
+                        checkbox.value = value;
+
+                        const label = document.createElement('label');
+                        label.appendChild(checkbox);
+                        label.appendChild(document.createTextNode(value));
+
+                        div.appendChild(label);
+                        div.appendChild(document.createElement('br'));
+                    });
+            }
+            else if(categorie === 'candidat'){
+                div.innerHTML = `<label>Nr. dosar candidat: </label><input name='nr_dosar' type=number required><br>
+                                 <label>Domeniu: </label><select name='domeniu' required>
+                                    <option name='informatica' value='informatica'>Informatica</option>
+                                    <option name='matematica' value='matematica'>Matematica</option>
+                                    <option name='cti' value='cti'>Calculatoare si Tehnologia Informatiei</option>
+                                    </select>`;
+            }
+            else
+                div.innerHTML = 'Eroare!';
+        }
+
+        addInputs();
+    </script>
 </body>
 </html>
 
