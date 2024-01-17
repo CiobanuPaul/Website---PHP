@@ -28,7 +28,7 @@
         <h1>Activitatile facultatii</h1>
     </header>
     <nav>
-        <ul>
+    <ul>
             <li><a href="activitati.php">Activități</a></li>
             <li><a href="date_personale.php">Date Personale</a></li>
             <?php
@@ -39,6 +39,7 @@
                 else
                     echo '<li><a href="info_admitere.php">Informatii admitere</a></li>';
             ?>
+            <li><a href="openai.php">Asistenta chat 24/7</a></li>
             <li><a href="signout.php">Deconectare</a></li>
         </ul>
     <nav>
@@ -100,6 +101,7 @@
     $conn->close();
 ?>
 
+<a href="diagrama.php">Statistici participare</a>
 </body>
 <footer>
         <p>&copy; 2023 Facultatea de Matematică și Informatică | Toate drepturile rezervate</p>

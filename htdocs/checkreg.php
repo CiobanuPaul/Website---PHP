@@ -2,7 +2,28 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 include "db_connection.php";
-//de inceput site-ul propriu zis
+
+if(isset($_POST['g-recaptcha-response']) && !empty($_POST['g-recaptcha-response'])){ 
+    // Google reCAPTCHA API secret key 
+    $secret_key = '6LfIE04pAAAAAG8oW4GXUiBd4GviyDd4IwwpPbQE'; 
+     
+    // reCAPTCHA response verification
+    $verify_captcha = file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$secret_key.'&response='.$_POST['g-recaptcha-response']); 
+    
+    // Decode reCAPTCHA response 
+    $verify_response = json_decode($verify_captcha); 
+     
+    // Check if reCAPTCHA response returns success 
+    if(!$verify_response->success){
+        echo "Nu s-a putut verifica reCAPTCHA!";
+        exit();
+    }
+}
+else{
+    echo "Trebuie sa bifati reCAPTCHA!";
+    exit();
+}
+
 
 //sanitizing inputs
 $tip_user = $_POST['categorie'];

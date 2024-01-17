@@ -40,6 +40,7 @@
                 else
                     echo '<li><a href="info_admitere.php">Informatii admitere</a></li>';
             ?>
+            <li><a href="openai.php">Asistenta chat 24/7</a></li>
             <li><a href="signout.php">Deconectare</a></li>
         </ul>
     <nav>

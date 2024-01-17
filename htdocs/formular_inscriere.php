@@ -1,5 +1,6 @@
 <?php
     include "db_connection.php";
+    require ("fpdf/fpfd.php");
     error_reporting(E_ALL);
     ini_set('display_errors', 1);
     session_start();
@@ -28,7 +29,7 @@
         <h1>Inscriere activitate</h1>
     </header>
     <nav>
-        <ul>
+    <ul>
             <li><a href="activitati.php">Activități</a></li>
             <li><a href="date_personale.php">Date Personale</a></li>
             <?php
@@ -39,6 +40,7 @@
                 else
                     echo '<li><a href="info_admitere.php">Informatii admitere</a></li>';
             ?>
+            <li><a href="openai.php">Asistenta chat 24/7</a></li>
             <li><a href="signout.php">Deconectare</a></li>
         </ul>
     <nav>
@@ -57,7 +59,8 @@
                 exit();
             }
             $res = $conn->query("select * from Activitate where id_activ=$id_activitate;");
-            $tip = $res->fetch_assoc()['tip'];
+            $row = $res->fetch_assoc();
+            $tip = $row['tip'];
             if($tip != $tip_user && $tip != 'oricine'){
                 echo "Eroare!";
                 exit(1);
@@ -67,7 +70,50 @@
                 echo 'Eroare!';
                 exit(1);
             }
-            echo "V-ati inscris cu succes!";
+            require_once('phpmailer/class.phpmailer.php');
+			require_once('phpmailer/mail_config.php');
+			
+			$mailBody = "Ati completat formularul de inscriere la activitatile facultatii de matematica si informatica! \n";
+            $mailBody .= "Activitate: " . $row['nume'] . ". \n";
+			$mailBody .= "Descriere: \n";
+			$mailBody .= $row['descriere'];
+			$mailBody .= "  \nVa asteptam!";
+
+			$mail = new PHPMailer(true); 
+			$mail->IsSMTP();
+
+            try {
+				 
+                $mail->SMTPDebug  = 0;                     
+                $mail->SMTPAuth   = true; 
+
+                $toEmail=$email;
+                $numeFrom='FMI';
+
+                $mail->SMTPSecure = "ssl";                 
+                $mail->Host       = "smtp.gmail.com";      
+                $mail->Port       = 465;                   
+                $mail->Username   = $username;  			// GMAIL username
+                $mail->Password   = $password;            // GMAIL password
+                // $mail->AddReplyTo('ciobanuioanpaul43@gmail.com', 'DAW - project');
+                $mail->AddAddress($toEmail, $nume);
+                // $mail->addCustomHeader("BCC: ".$email);
+               
+                $mail->SetFrom($email, $numeFrom);
+                $mail->Subject = 'Inscriere activitate FMI';
+                $mail->AltBody = 'To view this post you need a compatible HTML viewer!'; 
+                $mail->MsgHTML($mailBody);
+                
+                $mail->Send();
+                
+                $returnMsg = 'Your message has been submitted successfully.'; 
+                
+              }
+               catch (phpmailerException $e) {
+                                                echo $e->errorMessage(); //error from PHPMailer
+                                              }
+                
+            echo "V-ati inscris cu succes! Ati primit mail de confirmare.";
             exit();
         }
     ?>
