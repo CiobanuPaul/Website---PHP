@@ -1,6 +1,4 @@
 <?php //de vazut daca sa elimin verificarea tipului de user la orar
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
     include "db_connection.php";
     session_start();
     if(isset($_SESSION['id_user'], $_SESSION['nume'])){

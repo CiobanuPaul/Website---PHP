@@ -1,8 +1,6 @@
 <?php
     include "db_connection.php";
-    require ("fpdf/fpfd.php");
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
+    require ("fpdf/fpdf.php");
     session_start();
     if(isset($_SESSION['id_user'], $_SESSION['nume'])){
         $id_user = $_SESSION['id_user'];
@@ -53,23 +51,45 @@
         // Verifică dacă s-a trimis formularul
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id_activitate = $_POST['id_activitate'];
-            $res = $conn->query("select * from Participare p where p.id_activ=$id_activitate and id_user=$id_user;");
-            if($res->num_rows > 0){
+            
+            $selectParticipareQuery = "SELECT * FROM Participare p WHERE p.id_activ = ? AND id_user = ?";
+            $stmtParticipare = $conn->prepare($selectParticipareQuery);
+            $stmtParticipare->bind_param("ii", $id_activitate, $id_user);
+            $stmtParticipare->execute();
+            $resultParticipare = $stmtParticipare->get_result();
+
+            if ($resultParticipare->num_rows > 0) {
                 echo "Sunteti deja inscris la aceasta activitate!";
                 exit();
             }
-            $res = $conn->query("select * from Activitate where id_activ=$id_activitate;");
-            $row = $res->fetch_assoc();
-            $tip = $row['tip'];
-            if($tip != $tip_user && $tip != 'oricine'){
-                echo "Eroare!";
-                exit(1);
+            $stmtParticipare->close();
+
+            $selectActivitateQuery = "SELECT * FROM Activitate WHERE id_activ = ?";
+            $stmtActivitate = $conn->prepare($selectActivitateQuery);
+            $stmtActivitate->bind_param("i", $id_activitate);
+            $stmtActivitate->execute();
+            $resultActivitate = $stmtActivitate->get_result();
+            if ($resultActivitate->num_rows > 0) {
+                $row = $resultActivitate->fetch_assoc();
+                $tip = $row['tip'];
+
+                if ($tip != $tip_user && $tip != 'oricine') {
+                    echo "Eroare!";
+                    exit(1);
+                }
             }
-            $res = $conn->query("insert into Participare values($id_user, $id_activitate);");
-            if($res == false){
+            $stmtActivitate->close();
+
+            $insertParticipareQuery = "INSERT INTO Participare (id_user, id_activ) VALUES (?, ?)";
+            $stmtParticipare = $conn->prepare($insertParticipareQuery);
+            $stmtParticipare->bind_param("ii", $id_user, $id_activitate);
+            if (!$stmtParticipare->execute()) {
                 echo 'Eroare!';
                 exit(1);
             }
+            $stmtParticipare->close();
+
+
             require_once('phpmailer/class.phpmailer.php');
 			require_once('phpmailer/mail_config.php');
 			

@@ -1,10 +1,11 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 include "db_connection.php";
 $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
 $parola = filter_input(INPUT_POST, 'parola', FILTER_SANITIZE_STRING);
-$res = $conn->query("select * from User where email = '$email';");
+$stmt = $conn->prepare("SELECT * FROM User WHERE email = ?");
+$stmt->bind_param("s", $email);
+$stmt->execute();
+$res = $stmt->get_result();
 
 if($res->num_rows !== 1){
     echo '<p>Email sau parola gresita<p>';
@@ -18,6 +19,8 @@ else{
         exit();
     }
 }
+$stmt->close();
+
 
 session_start();
 $_SESSION['id_user'] = $row['id_user'];

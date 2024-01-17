@@ -1,7 +1,5 @@
 <?php
     include "db_connection.php";
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
     session_start();
     if(isset($_SESSION['id_user'], $_SESSION['nume'])){
         $id_user = $_SESSION['id_user'];
@@ -60,8 +58,12 @@
             echo "<li>{$row['nume']} <p>{$row['descriere']}</p></li>";
             // Verificam daca utilizatorul nu participa la aceasta activitate
             $id_activitate = $row['id_activ'];
-            $sql_participare = "SELECT * FROM Participare WHERE id_user = $id_user AND id_activ = $id_activitate";
-            $result_participare = $conn->query($sql_participare);
+
+            $sql_participare = "SELECT * FROM Participare WHERE id_user = ? AND id_activ = ?";
+            $stmt_participare = $conn->prepare($sql_participare);
+            $stmt_participare->bind_param("ii", $id_user, $id_activitate);
+            $stmt_participare->execute();
+            $result_participare = $stmt_participare->get_result();
 
             if ($result_participare->num_rows == 0) {
                 // Daca studentul nu participa la activitate, afișam link catre formularul de înscriere
@@ -71,6 +73,7 @@
                 echo "<p style='color:green;'>Inscris</p>";
             } 
         }
+        $stmt_participare->close();
         echo "</ul>";
 
         // Afișam activitatile disponibile pentru tipul specific de utilizator
@@ -83,8 +86,12 @@
             }
             echo "<li>{$row['nume']} <p>{$row['descriere']}</p></li>";
             $id_activitate = $row['id_activ'];
-            $sql_participare = "SELECT * FROM Participare WHERE id_user = $id_user AND id_activ = $id_activitate";
-            $result_participare = $conn->query($sql_participare);
+
+            $sql_participare = "SELECT * FROM Participare WHERE id_user = ? AND id_activ = ?";
+            $stmt_participare = $conn->prepare($sql_participare);
+            $stmt_participare->bind_param("ii", $id_user, $id_activitate);
+            $stmt_participare->execute();
+            $result_participare = $stmt_participare->get_result();
             
             if ($result_participare->num_rows == 0) {
                 // Daca studentul nu participa la activitate, afișam link catre formularul de înscriere
@@ -94,6 +101,7 @@
                 echo "<p style='color:green;'>Inscris</p>";
             } 
         }
+        $stmt_participare->close();
         echo "</ul>";
     } else {
         echo "Nu exista activitati disponibile în acest moment.";

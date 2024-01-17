@@ -1,7 +1,6 @@
 <?php
     include "db_connection.php";
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
+
     session_start();
     if(isset($_SESSION['id_user'], $_SESSION['nume'])){
         $id_user = $_SESSION['id_user'];
@@ -15,18 +14,9 @@
         exit();
     }
 
-require('fpdf/fpdf.php');
-?>
-<html>
-    <head>
-        <title>
-            Statistici diagrama
-        </title>    
-</head>
-<body></body>
-</html>
 
-<?php
+
+require('fpdf/fpdf.php');
 class PDF extends FPDF
 {
 

@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 include "db_connection.php";
 
 if(isset($_POST['g-recaptcha-response']) && !empty($_POST['g-recaptcha-response'])){ 
@@ -71,33 +69,40 @@ if($tip_user == 'profesor' && $email_type != 'fmi.unibuc.ro'
 
 
 //verificam daca utilizatorul deja exista
-$res = $conn->query("select 1 from User where cnp = '$cnp' or email='$email' or telefon='$tel'");
+$sql = "SELECT 1 FROM User WHERE cnp = ? OR email = ? OR telefon = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("sss", $cnp, $email, $tel);
+$stmt->execute();
+$res = $stmt->get_result();
 if($res->num_rows > 0){
     echo '<p>Utilizatorul deja exista!</p>';
     exit();
 }
-
+$stmt->close();
 
 $conn->begin_transaction();
 //inseram noul utilizator in tabelul User, respectiv in tabelul asociat categoriei de utilizator
-$res = $conn->query("insert into User(nume, prenume, cnp, data_n, email, telefon, parola) values('$nume', '$prenume', '$cnp', '$data_n', '$email', '$tel', '$parola')");
-if($res === FALSE){
-    $conn->rollback();
-    echo "Eroare7!";
-    exit(1);
-}
+$insertUserQuery = "INSERT INTO User(nume, prenume, cnp, data_n, email, telefon, parola) VALUES (?, ?, ?, ?, ?, ?, ?)";
+$stmtUser = $conn->prepare($insertUserQuery);
+$stmtUser->bind_param("sssssss", $nume, $prenume, $cnp, $data_n, $email, $tel, $parola);
+$stmtUser->execute();
 $id_user = $conn->insert_id;
+$stmtUser->close();
 
 //STUDENT
 if($tip_user === 'student'){
     $grupa = intval(filter_input(INPUT_POST, 'grupa', FILTER_SANITIZE_NUMBER_INT));
     try{
-        $res = $conn->query("insert into Student(id_stud, grupa) values('$id_user', '$grupa')");
-        if($res === FALSE){
+        $insertStudentQuery = "INSERT INTO Student(id_stud, grupa) VALUES (?, ?)";
+        $stmtStudent = $conn->prepare($insertStudentQuery);
+        $stmtStudent->bind_param("ii", $id_user, $grupa);
+       
+        if (!$stmtStudent->execute()) {
             $conn->rollback();
             echo "Eroare8!";
             exit(1);
         }
+        $stmtStudent->close();
     }
     catch (Exception $e){
         $conn->rollback();
@@ -110,29 +115,46 @@ if($tip_user === 'student'){
 //PROFESOR
 else if($tip_user === 'profesor'){
     try{
-        $res = $conn->query("insert into Profesor(id_prof) values('$id_user')");
-        if($res === FALSE){
+        $insertProfesorQuery = "INSERT INTO Profesor(id_prof) VALUES (?)";
+        $stmtProfesor = $conn->prepare($insertProfesorQuery);
+        $stmtProfesor->bind_param("i", $id_user);
+        if (!$stmtProfesor->execute()) {
             $conn->rollback();
             echo "Eroare9!";
             exit(1);
         }
-
+        $stmtProfesor->close();
+        echo "OK1";
         if (isset($_POST['materii']) && is_array($_POST['materii'])) {
             $selectedMaterii = $_POST['materii'];
             foreach ($selectedMaterii as $selectedValue) {
-                $res = $conn->query("select id_materie from Materie where denumire='$selectedValue'");
-                if($res->num_rows != 1){
+                $selectMaterieQuery = "SELECT id_materie FROM Materie WHERE denumire = ?";
+                $stmtSelectMaterie = $conn->prepare($selectMaterieQuery);
+                $stmtSelectMaterie->bind_param("s", $selectedValue);
+                $stmtSelectMaterie->execute();
+                $resultSelectMaterie = $stmtSelectMaterie->get_result();                
+                
+                if ($resultSelectMaterie->num_rows != 1) {
                     $conn->rollback();
                     echo "Eroare9.1!";
                     exit(1);
                 }
-                $id_materie = $res->fetch_assoc()['id_materie'];
-                $res = $conn->query("insert into Predare(id_prof, id_materie) values('$id_user', '$id_materie')");
-                if($res === FALSE){
+
+                echo "OK1";
+                $stmtSelectMaterie->close();
+
+                $id_materie = $resultSelectMaterie->fetch_assoc()['id_materie'];
+                $insertPredareQuery = "INSERT INTO Predare(id_prof, id_materie) VALUES (?, ?)";
+                $stmtPredare = $conn->prepare($insertPredareQuery);
+                $stmtPredare->bind_param("ii", $id_user, $id_materie);                
+                echo "OK1";
+
+                if (!$stmtPredare->execute()) {
                     $conn->rollback();
                     echo "Eroare9.2!";
                     exit(1);
                 }
+                $stmtPredare->close();
             }
         }
         else{
@@ -143,6 +165,8 @@ else if($tip_user === 'profesor'){
     }
     catch (Exception $e){
         $conn->rollback();
+        $mess = $e->getMessage();
+        echo $mess;
         echo "Eroare9: verificati corectitudinea datelor!";
         exit(1);
     }
@@ -160,15 +184,18 @@ else if($tip_user === 'candidat'){
         exit(1);
     }
     try{
-        $res = $conn->query("insert into Candidat(id_candidat, nr_dosar, domeniu) values('$id_user', '$nr_dosar', '$domeniu')");
-        if($res === FALSE){
+        $insertCandidatQuery = "INSERT INTO Candidat(id_candidat, nr_dosar, domeniu) VALUES (?, ?, ?)";
+        $stmtCandidat = $conn->prepare($insertCandidatQuery);
+        $stmtCandidat->bind_param("iis", $id_user, $nr_dosar, $domeniu);
+        
+        if (!$stmtCandidat->execute()) {
             echo "Eroare10!";
             $conn->rollback();
             exit(1);
         }
+        $stmtCandidat->close();
     }
     catch (Exception $e){
-        $conn->rollback();
         $conn->rollback();
         echo "Eroare10: verificati corectitudinea datelor!";
         exit(1);
