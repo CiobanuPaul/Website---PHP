@@ -1,2 +1,7 @@
 htdocs/diag.txt
+htdocs/diag.png
 htdocs/db_connection.php
+htdocs/fpdf
+htdocs/jpgraph
+htdocs/phpmailer
+htdocs/.env

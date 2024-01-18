@@ -54,7 +54,16 @@ else{
 
 
 <?php
-$openaiApiKey = "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";
+require_once __DIR__.'/vendor/autoload.php';
+
+use Symfony\Component\Dotenv\Dotenv;
+
+$dotenv = new Dotenv();
+$dotenv->load(__DIR__.'/.env');
+
+// Now you can access your API key using $_ENV['OPENAI_API_KEY']
+$openaiApiKey = $_ENV['OPENAI_API_KEY'];
+
 $threadsEndpoint = "https://api.openai.com/v1/threads";
 
 $headers = array(
